@@ -11,8 +11,6 @@ const handleResponse = (res, status, message, data = null) => {
     res.status(status).json({ status, message, data });
 };
 
-// --- LECTURE ---
-
 export const getAllAdvertisements = async (req, res, next) => {
     try {
         const ads = await getAllAdvertisementsService();
