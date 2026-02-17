@@ -1,66 +1,110 @@
-import { 
-    getAllApplicationsService, 
-    getApplicationsByIdService, 
-    createApplicationsService, 
-    updateApplicationsByIdService, 
-    deleteApplicationsByIdService
+import {
+  createApplicationService,
+  getApplicationsByUserService,
+  getApplicationsReceivedService,
+  updateApplicationStatusService,
+  deleteApplicationByIdService,
+  getApplicationOwnerIdService,
 } from "../Models/ApplicationsModel.js";
 
-// Standardized repsonse function
+import {
+  CreateApplicationSchema,
+  UpdateApplicationStatusSchema,
+} from "../Validators/ApplicationsValidator.js";
+
 const handleResponse = (res, status, message, data = null) => {
-    res.status(status).json({
-        status, message, data
-    });
+  res.status(status).json({ status, message, data });
 };
 
-// Every CRUD controlled response
+export const applyToAdvertisements = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
 
-export const getAllApplications = async (req, res, next) => {
-    try {
-        const allApplications = await getAllApplicationsService();
-        handleResponse(res, 200, "Applicationss fetched successfully", allApplications)
-    } catch (error) {
-        next(err);
-    }
-}
+    const { error, value } = CreateApplicationSchema.validate(req.body, {
+      abortEarly: false,
+      stripUnknown: true,
+    });
 
-export const getApplications = async (req, res, next) => {
-    try {
-        const Applications = await getApplicationsByIdService(req.params.id);
-        if(!Applications) return handleResponse(res, 404, "Applications not found")
-        handleResponse(res, 200, "Applications fetched successfully", Applications)
-    } catch (error) {
-        next(err);
+    if (error) {
+      return handleResponse(res, 400, "Validation error", error.details.map((d) => d.message)
+      );
     }
-}
 
-export const createApplications = async (req, res, next) => {
-    const {name, mail, cover_letter, application_status} = req.body;
-    try {
-        const newApplications = await createApplicationsService(name, mail, cover_letter, application_status);
-        handleResponse(res, 200, "Applications created successfully", newApplications)
-    } catch (err) {
-        next(err);
-    }
-}
+    const newApplication = await createApplicationService(value, userId);
+    return handleResponse(res, 201, "Application successfully submitted", newApplication);
+  } catch (error) {
+    next(error);
+  }
+};
 
-export const updateApplications = async (req, res, next) => {
-    const {name, mail, cover_letter, application_status} = req.body
-    try {
-        const updatedApplications = await updateApplicationsByIdService(req.params.id, name, mail, cover_letter, application_status);
-        if(!updatedApplications) return handleResponse(res, 404, "Applications not found")
-        handleResponse(res, 200, "Applications updated successfully", updatedApplications)
-    } catch (error) {
-        next(err);
-    }
-}
+export const getMyApplications = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const myApplications = await getApplicationsByUserService(userId);
+    return handleResponse(res, 200, "List of your applications", myApplications);
+  } catch (error) {
+    next(error);
+  }
+};
 
-export const deleteApplications = async (req, res, next) => {
-    try {
-        const deletedApplications = await deleteApplicationsByIdService(req.params.id);
-        if(!deletedApplications) return handleResponse(res, 404, "Applications not found")
-        handleResponse(res, 200, "Applications deleted successfully", deletedApplications)
-    } catch (error) {
-        next(err);
+export const getReceivedApplications = async (req, res, next) => {
+  try {
+    const ownerId = req.user.id;
+    const receivedApps = await getApplicationsReceivedService(ownerId);
+    return handleResponse(res, 200, "Applications received for your advertisements", receivedApps);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateApplicationStatus = async (req, res, next) => {
+  try {
+    const applicationId = req.params.id;
+   
+    const ownerId = await getApplicationOwnerIdService(applicationId);
+    if (!ownerId) return handleResponse(res, 404, "Application not found");
+
+    if (ownerId !== req.user.id && req.user.role !== "admin") {
+      return handleResponse(res, 403, "Forbidden");
     }
-}
+
+    const { error, value } = UpdateApplicationStatusSchema.validate(req.body, {
+      abortEarly: false,
+      stripUnknown: true,
+    });
+
+    if (error) {
+      return handleResponse(res, 400, "Validation error", error.details.map((d) => d.message)
+      );
+    }
+
+    const updatedApplication = await updateApplicationStatusService(
+      applicationId,
+      value.application_status
+    );
+
+    if (!updatedApplication) {
+      return handleResponse(res, 404, "Application not found");
+    }
+
+    return handleResponse(res, 200, "Application updated successfully", updatedApplication);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteApplication = async (req, res, next) => {
+  try {
+    const applicationId = req.params.id;
+   
+    const deletedApplication = await deleteApplicationByIdService(applicationId);
+
+    if (!deletedApplication) {
+      return handleResponse(res, 404, "Application not found");
+    }
+
+    return handleResponse(res, 200, "Application cancelled", deletedApplication);
+  } catch (error) {
+    next(error);
+  }
+};

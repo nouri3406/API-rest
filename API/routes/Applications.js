@@ -1,12 +1,19 @@
 import express from "express";
-import { createApplications, deleteApplications, getAllApplications, getApplications, updateApplications } from "../Controllers/ApplicationsController.js";
+import { verifyToken } from "../Middlewares/AuthMiddleware.js"; // adapte le chemin exact
+import {
+  applyToAdvertisements,
+  getMyApplications,
+  getReceivedApplications,
+  updateApplicationStatus,
+  deleteApplication,
+} from "../Controllers/ApplicationsController.js";
 
 const router = express.Router();
 
-router.get ("/Applications", getAllApplications);
-router.get ("/Applications/:id", getApplications);
-router.post ("/Applications", createApplications);
-router.put ("/Applications/:id", updateApplications);
-router.delete ("/Applications/:id", deleteApplications);
+router.post("/", verifyToken, applyToAdvertisements);
+router.get("/me", verifyToken, getMyApplications);
+router.get("/received", verifyToken, getReceivedApplications);
+router.put("/:id/status", verifyToken, updateApplicationStatus);
+router.delete("/:id", verifyToken, deleteApplication);
 
-export default router ;
+export default router;

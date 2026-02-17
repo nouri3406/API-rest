@@ -7,71 +7,69 @@ import {
     deleteAdvertisementsByIdService
 } from "../Models/AdvertisementsModel.js";
 
-// Standardized repsonse function
 const handleResponse = (res, status, message, data = null) => {
-    res.status(status).json({
-        status, message, data
-    });
+    res.status(status).json({ status, message, data });
 };
 
-// Every CRUD controlled response
+// --- LECTURE ---
 
 export const getAllAdvertisements = async (req, res, next) => {
     try {
-        const allAdvertisements = await getAllAdvertisementsService();
-        handleResponse(res, 200, "Users fetched successfully", allAdvertisements)
-    } catch (error) {
-        next(error);
-    }
-}
+        const ads = await getAllAdvertisementsService();
+        handleResponse(res, 200, "Success", ads);
+    } catch (error) { next(error); }
+};
 
 export const getAdvertisementsByBusinessSector = async (req, res, next) => {
     try {
-        const Advertisements = await getAdvertisementsByBusinessSectorService(req.params.business_sector);
-        if(!Advertisements) return handleResponse(res, 404, "Advertisements not found")
-        handleResponse(res, 200, "Advertisements fetched successfully", Advertisements)
-    } catch (error) {
-        next(error);
-    }
-}
+        const sector = req.params.business_sector;
+        const adsFound = await getAdvertisementsByBusinessSectorService(sector);
+        
+        if (!adsFound || adsFound.length === 0) {
+            return handleResponse(res, 404, "No ads found in this sector");
+        }
+        handleResponse(res, 200, "Success", adsFound);
+    } catch (error) { next(error); }
+};
 
 export const getAdvertisementsByCity = async (req, res, next) => {
     try {
-        const Advertisements = await getAdvertisementsByCityService(req.params.city);
-        if(!Advertisements) return handleResponse(res, 404, "Advertisements not found")
-        handleResponse(res, 200, "Advertisements fetched successfully", Advertisements)
-    } catch (error) {
-        next(error);
-    }
-}
+        const city = req.params.city;
+        const adsInCity = await getAdvertisementsByCityService(city);
+        
+        if (!adsInCity || adsInCity.length === 0) {
+            return handleResponse(res, 404, "No ads found in this city");
+        }
+        handleResponse(res, 200, "Success", adsInCity);
+    } catch (error) { next(error); }
+};
+
+// --- ACTIONS ---
 
 export const createAdvertisements = async (req, res, next) => {
-    const {company_name, job_name , contract_type, business_sector, salary, city, adress, description} = req.body;
     try {
-        const newAdvertisements = await createAdvertisementsService({id, company_name, job_name , contract_type, business_sector, salary, city, adress, description});
-        handleResponse(res, 201, "Advertisements created successfully", newAdvertisements)
-    } catch (error) {
-        next(error);
-    }
-}
+        const userId = req.user.id;
+        const newAd = await createAdvertisementsService(req.body, userId);
+        handleResponse(res, 201, "Created", newAd);
+    } catch (error) { next(error); }
+};
 
 export const updateAdvertisements = async (req, res, next) => {
-    const {id, company_name, job_name , contract_type, business_sector, salary, city, adress, description} = req.body
     try {
-        const updatedAdvertisements = await updateAdvertisementsByIdService(req.params.id,{id, company_name, job_name , contract_type, business_sector, salary, city, adress, description});
-        if(!updatedAdvertisements) return handleResponse(res, 404, "User not found")
-        handleResponse(res, 200, "Advertisements updated successfully", updatedAdvertisements)
-    } catch (error) {
-        next(error);
-    }
-}
+        const adId = req.params.id;
+        const updatedAd = await updateAdvertisementsByIdService(adId, req.body);
+        
+        if (!updatedAd) return handleResponse(res, 404, "Ad not found");
+        handleResponse(res, 200, "Updated", updatedAd);
+    } catch (error) { next(error); }
+};
 
 export const deleteAdvertisements = async (req, res, next) => {
     try {
-        const deletedAdvertisements = await deleteAdvertisementsByIdService(req.params.id);
-        if(!deletedAdvertisements) return handleResponse(res, 404, "Advertisements not found")
-        handleResponse(res, 200, "Advertisements deleted successfully", deletedAdvertisements)
-    } catch (error) {
-        next(error);
-    }
-}
+        const adId = req.params.id;
+        const deletedAd = await deleteAdvertisementsByIdService(adId);
+        
+        if (!deletedAd) return handleResponse(res, 404, "Ad not found");
+        handleResponse(res, 200, "Deleted", deletedAd);
+    } catch (error) { next(error); }
+};

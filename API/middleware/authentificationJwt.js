@@ -1,23 +1,33 @@
-import jwt from "jasonWebtoken";
+import jwt from "jsonwebtoken";
+import { getAdvertisementOwnerId } from "../Models/AdvertisementsModel.js";
 
-app.get('/jwt', (req, res) => {
-  const createTokenFromJason = (jasonData, secretKeys, options = {}) => {
-    try{
-      const jwt = jwt.sign (jasonData, secretKeys, options)
-    }catch(error){
-      console.log ("Error: ", error.message)
-      return null ;
+export const verifyToken = (req, res, next) => {
+    const token = req.headers["authorization"]?.split(" ")[1];
+    if (!token) return res.status(401).json({ message: "Accès refusé" });
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = decoded;
+        next();
+    } catch (err) {
+        res.status(403).json({ message: "Token invalide" });
     }
-  } 
+};
 
-  const jsonData = { name:"Jhon", mail: 'user@toto.com' }; 
-  const secretKey = 'tonSecretSuperSecurise';
+export const isOwner = async (req, res, next) => {
+    try {
+        const userIdFromToken = req.user.id;
+        const adId = req.params.id;
+        const ownerId = await getAdvertisementOwnerId(adId);
 
-  const token = createTokenFromJason (jasonData, secretKeys)
-  res.json();
-    if (token) {
-      res.json({ token });
-    } else {
-      res.status(500).json({ error: 'Erreur lors de la création du token' });
+        if (!ownerId) return res.status(404).json({ message: "Annonce introuvable" });
+
+        if (ownerId === userIdFromToken || req.user.role === 'admin') {
+            next();
+        } else {
+            res.status(403).json({ message: "Accès interdit" });
+        }
+    } catch (error) {
+        next(error);
     }
-});
+};
