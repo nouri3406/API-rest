@@ -7,8 +7,8 @@ import {
   updateCompanies,
 } from "../Controllers/CompaniesController.js";
 
-import { verifyToken, validateRequest, isCompanyOwner } from "../Middlewares/AuthMiddleware.js";
-import { CreateCompanySchema, UpdateCompanySchema } from "../Validators/CompaniesValidator.js";
+import { verifyToken, validateRequest, isCompanyOwner } from "../middleware/authentificationJwt.js";
+import { CreateCompanySchema, UpdateCompanySchema } from "../Validator/CompaniesValidate.js";
 
 const router = express.Router();
 

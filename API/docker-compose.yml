@@ -1,0 +1,32 @@
+services:
+  db:
+    image: postgres:16
+    container_name: jobboard-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: jobboard
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  api:
+    build: .
+    container_name: jobboard-api
+    restart: unless-stopped
+    depends_on:
+      - db
+    env_file:
+      - .env
+    ports:
+      - "3000:3000"
+    command: npm run dev
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+volumes:
+  db_data:

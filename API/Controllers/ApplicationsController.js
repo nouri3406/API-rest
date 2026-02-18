@@ -10,7 +10,7 @@ import {
 import {
   CreateApplicationSchema,
   UpdateApplicationStatusSchema,
-} from "../Validators/ApplicationsValidator.js";
+} from "../Validator/ApplicationsValidate.js";
 
 const handleResponse = (res, status, message, data = null) => {
   res.status(status).json({ status, message, data });

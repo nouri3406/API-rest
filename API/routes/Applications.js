@@ -1,5 +1,5 @@
 import express from "express";
-import { verifyToken } from "../Middlewares/AuthMiddleware.js"; // adapte le chemin exact
+import { verifyToken } from "../middleware/authentificationJwt.js"; // adapte le chemin exact
 import {
   applyToAdvertisements,
   getMyApplications,

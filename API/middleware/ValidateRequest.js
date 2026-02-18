@@ -6,7 +6,7 @@ export const validateRequest = (schema) => {
             const errors = error.details.map(detail => detail.message);
             return res.status(400).json({ 
                 status: 400, 
-                message: "Erreur de validation", 
+                message: "Validation error", 
                 errors: errors 
             });
         }

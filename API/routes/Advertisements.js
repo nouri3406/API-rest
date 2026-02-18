@@ -7,9 +7,9 @@ import {
     getAdvertisementsByCity, 
     getAdvertisementsByBusinessSector 
 } from "../Controllers/AdvertisementsController.js";
-import { verifyToken, isOwner } from "./middleware/authentificationJwt.js";
-import { validateRequest } from "./middleware/validateRequest.js";
-import { AdvertisementsSchema } from "./Validator/AdvertisementsValidate.js";
+import { verifyToken, isOwner } from "../middleware/authentificationJwt.js";
+import { validateRequest } from "../middleware/ValidateRequest.js";
+import { AdvertisementsSchema } from "../Validator/AdvertisementsValidate.js";
 
 const router = express.Router();
 
