@@ -4,17 +4,19 @@ services:
     container_name: jobboard-db
     restart: unless-stopped
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: jobboard
-    ports:
-      - "5432:5432"
+      POSTGRES_USER: devuser
+      POSTGRES_PASSWORD: devpass
+      POSTGRES_DB: devdb
+    #ports:
+     # - "5432:5432"
     volumes:
-      - db_data:/var/lib/postgresql/data
-      - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql
+    - db_data:/var/lib/postgresql/data
+    - ./API/docker/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
 
   api:
-    build: .
+    build:
+      context: .
+      dockerfile: API/dockerfile
     container_name: jobboard-api
     restart: unless-stopped
     depends_on:
