@@ -13,7 +13,7 @@ import { CreatePeopleSchema, UpdatePeopleSchema } from "../Validator/peopleValid
 const router = express.Router();
 
 router.get("/People/:id", getPeople);
-
+router.get("/People", getAllPeople);
 router.post("/People", verifyToken, validateRequest(CreatePeopleSchema), createPeople);
 router.put("/People/:id", verifyToken, isPeopleOwner, validateRequest(UpdatePeopleSchema), updatePeople);
 router.delete("/People/:id", verifyToken, isPeopleOwner, deletePeople);

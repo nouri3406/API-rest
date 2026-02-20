@@ -13,7 +13,7 @@ import { CreateCompanySchema, UpdateCompanySchema } from "../Validator/Companies
 const router = express.Router();
 
 router.get("/Companies/:id", getCompanies);
-
+router.get("/Companies", getAllCompanies);
 router.post("/Companies", verifyToken, validateRequest(CreateCompanySchema), createCompanies);
 router.put("/Companies/:id", verifyToken, isCompanyOwner, validateRequest(UpdateCompanySchema), updateCompanies);
 router.delete("/Companies/:id", verifyToken, isCompanyOwner, deleteCompanies);

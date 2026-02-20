@@ -24,7 +24,7 @@ export const getAdvertisementsByBusinessSector = async (req, res, next) => {
         const adsFound = await getAdvertisementsByBusinessSectorService(sector);
         
         if (!adsFound || adsFound.length === 0) {
-            return handleResponse(res, 404, "No ads found in this sector");
+            return handleResponse(res, 200, "No ads found in this sector");
         }
         handleResponse(res, 200, "Success", adsFound);
     } catch (error) { next(error); }
@@ -36,7 +36,7 @@ export const getAdvertisementsByCity = async (req, res, next) => {
         const adsInCity = await getAdvertisementsByCityService(city);
         
         if (!adsInCity || adsInCity.length === 0) {
-            return handleResponse(res, 404, "No ads found in this city");
+            return handleResponse(res, 200, "No ads found in this city");
         }
         handleResponse(res, 200, "Success", adsInCity);
     } catch (error) { next(error); }
