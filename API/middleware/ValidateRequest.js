@@ -1,15 +1,19 @@
 export const validateRequest = (schema) => {
-    return (req, res, next) => {
-        const { error } = schema.validate(req.body, { abortEarly: false });
-        
-        if (error) {
-            const errors = error.details.map(detail => detail.message);
-            return res.status(400).json({ 
-                status: 400, 
-                message: "Validation error", 
-                errors: errors 
-            });
-        }
-        next();
-    };
+  return (req, res, next) => {
+    const { error, value } = schema.validate(req.body, {
+      abortEarly: false,
+      stripUnknown: true,
+    });
+
+    if (error) {
+      return res.status(400).json({
+        status: 400,
+        message: "Validation error",
+        errors: error.details.map((d) => d.message),
+      });
+    }
+
+    req.body = value;
+    return next();
+  };
 };
